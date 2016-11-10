@@ -6,6 +6,14 @@ use Ageras\LaravelOneSky\Exceptions\UnexpectedErrorWhileUploading;
 
 class Push extends BaseCommand
 {
+    protected $formatArray = [
+        'json' => 'HIERARCHICAL_JSON',
+        'yml' => 'YAML',
+        'txt' => 'TXT',
+        'xml' => 'XML',
+        'php' => 'PHP_SHORT_ARRAY',
+    ];
+
     protected $signature = 'onesky:push {--project=}';
 
     protected $description = 'Push the language files to OneSky';
@@ -66,11 +74,23 @@ class Push extends BaseCommand
             $data[] = [
                 'project_id'  => $project,
                 'file'        => $file,
-                'file_format' => 'PHP_SHORT_ARRAY',
+                'file_format' => $this->getFileFormat($file),
                 'locale'      => $locale,
             ];
         }
 
         return $data;
+    }
+
+    public function getFileFormat($file)
+    {
+        $extension = pathinfo($file, PATHINFO_EXTENSION);
+        if (array_key_exists($extension, $this->formatArray)) {
+            return $this->formatArray[$extension];
+        } else {
+            throw new UnexpectedErrorWhileUploading(
+                'Unkown file format: ' . $file
+            );
+        }
     }
 }
