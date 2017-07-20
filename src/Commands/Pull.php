@@ -49,7 +49,7 @@ class Pull extends BaseCommand
 
         $response = $client->translations('export', $data);
 
-        if (! is_null(json_decode($response))) {
+        if (is_null(json_decode($response))) {
             $this->result = static::UNKNOWN_ERROR;
             $this->invalidResponse($locale, $file, $response);
 
